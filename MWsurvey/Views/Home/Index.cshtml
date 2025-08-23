@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "病房使用滿意度調查表";
+}
+
+
+<style>
+    .head {
+        background-color: ghostwhite;
+        padding: 32px 32px;
+        margin: 0px 0px 20px;
+    }
+
+    .body {
+        background-color: transparent;
+        padding: 16px 32px;
+        margin: 0px 0px 120px;
+    }
+
+    .line {
+        margin: 0px 0px 15px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #0d978e;
+    }
+
+    .box {
+        width: 30%;
+        float: left;
+        margin: 0px 10px 20px;
+    }
+
+    ul li a {
+        display: block;
+        width: 100%;
+        background-color: transparent;
+    }
+
+        ul li a:hover {
+            background-color: ghostwhite;
+        }
+
+    ul {
+        color: #0d978e;
+    }
+
+    a {
+        color: dimgray;
+    }
+
+        a:hover {
+            color: dimgray;
+        }
+</style>
+
+<div class="jumbotron head">
+    <h1 style="font-weight:bold">病房使用滿意度調查表</h1>
+    <hr class="my-4">
+    <p class="lead">（這裡要改）</p>
+</div>
+
+<div class="jumbotron body">
+    <img src="~/images/icon_head.png" width="20" height="20" style="vertical-align:text-top" />
+    <h5 class="line" style="display:inline">角色選擇</h5>
+    <hr class="my-4">
+    <ul>
+        <li class="box"><a href="@Url.Action("Patient", "Survey")">病友</a></li>
+        <li class="box"><a href="@Url.Action("Carer", "Survey")">照顧者</a></li>
+        <li class="box"><a href="@Url.Action("Medicalworker", "Survey")">醫護人員@*（含各類實習生、社工、院牧）*@</a></li>
+        <li class="box"><a href="@Url.Action("MedicalEngineer", "Survey")">醫工人員</a></li>
+        <li class="box"><a href="@Url.Action("Delivery", "Survey")">傳送人員</a></li>
+        <li class="box"><a href="@Url.Action("Cleaner", "Survey")">清潔人員</a></li>
+    </ul>
+</div>
+

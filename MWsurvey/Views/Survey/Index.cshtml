@@ -1,0 +1,195 @@
+﻿@model IEnumerable<MWsurvey.Models.V_SURVEY_LIST>
+
+
+@{
+    ViewBag.Title = Html.DisplayFor(model => model.First().basic.Title);
+}
+
+<style>
+    .head {
+        background-color: ghostwhite;
+        padding: 32px 32px;
+        margin: 0px 0px 20px;
+    }
+
+    .qBody {
+        background-color: ghostwhite;
+        padding: 16px 32px;
+        margin: 32px 0px 16px;
+    }
+
+    .body {
+        background-color: ghostwhite;
+        padding: 16px 32px;
+        margin: 0px 0px 16px;
+    }
+
+    .question {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .addRedStar::after {
+        content: '*';
+        color: red;
+        font-size: 18px;
+    }
+</style>
+
+<div class="jumbotron head">
+    @*問卷名稱*@
+    <h2 style="font-weight:bold;">@Html.DisplayFor(model => model.First().basic.Title)</h2>
+    <hr class="my-4">
+    <p>@Html.DisplayFor(model => model.First().basic.Summary)</p>
+</div>
+
+<div>
+    <form id="responseForm" action="@Url.Action("SaveResponseData")" method="post" enctype="multipart/form-data" onsubmit="return check(this)">
+        @foreach (var groupList in Model.GroupBy(x => x.gRoup))
+        {
+            //群組名稱
+            <div class="jumbotron qBody">
+                <h4 style="font-weight:bold;">@groupList.First().gRoup.GroupTitle</h4>
+            </div>
+
+            //群組裡的問題
+            <div class="jumbotron body">
+                @foreach (var question in groupList.GroupBy(x => x.question))
+                {
+                    <fieldset class="form-group">
+                        <div class="form-group">
+                            @*必填問題*@
+                            @if (question.First().question.MustKeyin == true)
+                    {
+                                <label class="question addRedStar">@question.First().question.QuestionOrder.&emsp;@question.First().question.Question</label>
+                            }
+                            else
+                            {
+                                <label class="question">@question.First().question.QuestionOrder.&emsp;@question.First().question.Question</label>
+                            }
+
+                            @*問題選項*@
+                            @foreach (var optionList in question)
+                    {
+
+                                @*form-check包住選項的字<input><label>*@
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        @if (optionList.question.Type == "RB")
+                                        {
+                                            if (question.First().question.MustKeyin == true)
+                                            {
+                                                <input type="radio" class="form-check-input" name="optionRMust @optionList.question.SurveyQuestionSn" id="@optionList.option.SurveyOptionSn" value="@optionList.option.SurveyOptionSn">
+                                            }
+                                            else
+                                            {
+                                                <input type="radio" class="form-check-input" name="optionR @optionList.question.SurveyQuestionSn" id="@optionList.option.SurveyOptionSn" value="@optionList.option.SurveyOptionSn">
+                                            }
+
+                                        }
+                                        @if (optionList.question.Type == "CB")
+                                        {
+                                            <input type="checkbox" class="form-check-input" name="optionC @optionList.question.SurveyQuestionSn" id="@optionList.option.SurveyOptionSn" value="@optionList.option.SurveyOptionSn">
+                                        }
+                                        @if (optionList.question.Type == "TB")
+                                        {
+                                            if (question.First().question.MustKeyin == true)
+                                            {
+                                                <input type="text" name="boxMust @optionList.question.SurveyQuestionSn" id="text @optionList.option.SurveyOptionSn" />
+                                            }
+                                            else
+                                            {
+                                                <input type="text" name="box @optionList.question.SurveyQuestionSn" id="text @optionList.option.SurveyOptionSn" />
+                                            }
+
+                                        }
+
+                                        @optionList.option.OptionText
+
+
+                                        @*radio button後的textbox*@
+                                        @if (optionList.option.InputText == true && optionList.question.Type != "TB")
+                                        {
+                                            <input type="text" name="radiotext @optionList.question.SurveyQuestionSn" id="radiotext @optionList.option.SurveyOptionSn" />
+                                            if (optionList.option.OptionEndText != "")
+                                            {
+                                                @optionList.option.OptionEndText
+                                            }
+                                        }
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </fieldset>
+                }
+            </div>
+        }
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">提交</button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    function check(responseForm) {
+        var elements = window.document.getElementsByTagName("input");
+        for (i = 0; i < elements.length; i++) {
+            if (elements[i].name.includes("Must")) {
+                if (elements[i].type == "radio") {
+                    var qName = document.getElementsByName(elements[i].name);
+                    var value = false;
+
+                    for (var m = 0; m < qName.length; m++) {
+                        if (qName[m].checked == true) {
+                            value = true;
+                        }
+                    }
+                    if (!value) {
+                        alert("必填題目不可為空")
+                        return false;
+                    }
+                }
+                if (elements[i].type == "text") {
+                    if (elements[i].value == "") {
+                        alert("必填欄位不可為空")
+                        return false;
+                    }
+                }
+                
+            }
+
+            if (elements[i].name.includes("radiotext")) {
+                var qNum = elements[i].id.match(/\d+/);
+                //alert(qNum)
+                for (var a = 0; a < elements.length; a++) {
+                    if (elements[a].checked == true) {
+                        var optionId = elements[a].id;
+                        if (optionId == qNum) {
+                            //alert(optionId)
+                            if (elements[i].value == "") {
+                                alert("欄位不可為空")
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (elements[i].name.includes("optionC")) {
+                var qName = document.getElementsByName(elements[i].name);
+                var value = false;
+
+                for (var m = 0; m < qName.length; m++) {
+                    if (qName[m].checked == true) {
+                        value = true;
+                    }
+                }
+                if (!value) {
+                    alert("請至少選擇一個工作區域")
+                    return false;
+                }
+            }
+        }
+    }
+</script>

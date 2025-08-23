@@ -1,0 +1,70 @@
+﻿@model IEnumerable<MWsurvey.Models.SurveyBasic>
+
+@{
+    ViewBag.Title = "身分確認";
+}
+
+<style>
+    .head {
+        background-color: ghostwhite;
+        padding: 32px 32px;
+        margin: 0px 0px 20px;
+    }
+
+    h4 {
+        margin: 0px 0px 10px;
+    }
+
+    .addNote::after {
+        content: '*';
+        color: red;
+        font-size: 15px;
+    }
+</style>
+
+
+<div class="jumbotron head">
+    <h2 style="font-weight:bold">@Html.DisplayFor(model => model.First().Title)</h2>
+</div>
+
+<h4 style="font-weight:bold">身分確認</h4>
+
+<div>
+    <form id="personForm">
+        <div class="form-group">
+            @*<div id="msg" style="display:none"><ul style="color:red;"> Invalid number</ul></div>*@
+            <label for="patientNumber" class="addNote">請輸入身分證字號</label>
+            <input type="text" class="form-control" id="patientNumber" name="patientNumber">
+            <small id="emailHelp" class="form-text text-muted">一人只能填寫一次</small>
+        </div>
+    </form>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" onclick="CheckPerson()">開始填寫</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="cancel" onclick="location.href='@Url.Action("Index", "Home")'">取消</button>
+    </div>
+</div>
+
+<script>
+    function CheckPerson() {
+        var data = $("#personForm").serialize();
+        //alert(data);
+        $.ajax({
+            type: "post",
+            data: data,
+            url: '@Url.Action("CheckValidPerson", "Survey")',
+            success: function (result) {
+                if (result == "Fail") {
+                    $("#msg").show();
+                } if (result == "Null") {
+                    alert("欄位不可為空");
+                }
+                else {
+                    window.location.href = '@Url.Action("Index", "Survey", new { surNum = Model.First().SurveyBasicSn = 3})';
+                }
+            }
+        })
+    }
+</script>
+
+
+
